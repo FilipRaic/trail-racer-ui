@@ -1,0 +1,33 @@
+<div class="container py-3" *ngIf="applications$ | async as applications">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">All Applications</h2>
+    <a *ngIf="isApplicant" class="btn btn-primary" routerLink="/applications/new" routerLinkActive="active">New
+      Application</a>
+  </div>
+  <div *ngIf="applications.length === 0" class="text-muted">No applications found.</div>
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Race</th>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Club</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let application of applications">
+        <td>{{ application.raceName || application.raceId }}</td>
+        <td>{{ application.userFirstName }}</td>
+        <td>{{ application.userLastName }}</td>
+        <td>{{ application.club || '-' }}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger" (click)="delete(application)">Delete</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

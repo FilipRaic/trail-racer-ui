@@ -1,0 +1,81 @@
+import '@testing-library/jest-dom';
+import {render, screen} from '@testing-library/angular';
+import {RouterTestingModule} from '@angular/router/testing';
+import {CommonModule} from '@angular/common';
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {userEvent} from '@testing-library/user-event';
+import {NavbarComponent} from './navbar.component';
+import {NullComponent} from '../shared/null-component';
+import {TranslateTestingModule} from 'ngx-translate-testing';
+import {mock} from 'ts-mockito';
+import {AuthService} from '../service/auth.service';
+
+describe('NavbarComponent', () => {
+  const authServiceMock = mock(AuthService);
+
+  const renderOptions = {
+    imports: [
+      CommonModule,
+      NoopAnimationsModule,
+      RouterTestingModule.withRoutes([
+        {path: '', component: NullComponent},
+        {path: 'races', component: NullComponent}
+      ]),
+      NavbarComponent,
+      TranslateTestingModule.withTranslations({en: require('../../../src/assets/i18n/en.json')})
+    ],
+    declarations: [],
+    providers: [
+      {
+        provide: AuthService,
+        useValue: authServiceMock
+      },
+    ]
+  };
+
+  beforeAll(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation(query => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      })),
+    });
+  });
+
+  it('should render the navbar with correct brand and links', async () => {
+    await render(NavbarComponent, renderOptions);
+
+    expect(screen.getByText('Trail Racer')).toBeVisible();
+    expect(screen.getByText('Trail Racer').closest('a')).toHaveAttribute('href', '/');
+
+    expect(screen.getByText('Home')).toBeVisible();
+    expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/');
+
+    expect(screen.getByText('Races')).toBeVisible();
+  });
+
+  it('should contain navigation link to Races', async () => {
+    await render(NavbarComponent, renderOptions);
+    expect(screen.getByText('Races').closest('a')).toHaveAttribute('href', '/races');
+  });
+
+  it('should toggle navbar collapse on button click for mobile view', async () => {
+    const user = userEvent.setup();
+    await render(NavbarComponent, renderOptions);
+
+    const toggleButton = screen.getByRole('button', {name: /toggle navigation/i});
+    const collapseDiv = screen.getByTestId('navbarNavDropdown');
+    expect(collapseDiv).not.toHaveClass('show');
+
+    await user.click(toggleButton);
+
+    expect(collapseDiv).toHaveClass('collapse navbar-collapse justify-content-end');
+  });
+});

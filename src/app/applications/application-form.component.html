@@ -1,0 +1,23 @@
+<div class="container py-3" [class.opacity-50]="loading">
+  <h2 class="mb-3">Apply for a Race</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">Race</label>
+      <select class="form-select" formControlName="raceId">
+        <option value="" disabled>Select race</option>
+        <option *ngFor="let r of races$ | async" [value]="r.id">{{ r.name }} ({{ r.distance }})</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Club (optional)</label>
+      <input class="form-control" formControlName="club" />
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Submit Application</button>
+      <a class="btn btn-outline-secondary" routerLink="/">Cancel</a>
+    </div>
+  </form>
+</div>
